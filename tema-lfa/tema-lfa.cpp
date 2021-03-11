@@ -42,7 +42,7 @@ private:
 		
 		auto word = split(words[index]);
 
-		q.push({ 0, 0 });
+		q.push({ start_node, 0 });
 		while (!q.empty())
 		{
 			int x = q.front().first;
