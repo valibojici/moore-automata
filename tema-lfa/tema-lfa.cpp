@@ -64,7 +64,7 @@ private:
 					{
 						return { output, history };
 					}
-				// daca nu e stare finala trecem la urmatorul nod din coada
+				// daca nu e stare finala trec la urmatorul nod din stack
 				continue;
 			}
 
