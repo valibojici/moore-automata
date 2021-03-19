@@ -2,13 +2,16 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <queue>
+#include <stack>
 
 std::vector<std::string> split(const std::string& s)
 {
+	// daca s e un cuvant returneaza un vector de litere
+	// daca s e o prop returneaza un vector de cuvinte
+
 	std::vector<std::string> result;
-	int poz = s.find(' ');
-	int old_poz = 0;
+	size_t poz = s.find(' ');
+	size_t old_poz = 0;
 	if (poz == std::string::npos)
 	{
 		for (char c : s)
@@ -34,23 +37,25 @@ private:
 	std::vector< std::vector<std::pair<int, std::string> > > ad_list;
 	std::vector<std::string> words;
 
-	std::pair<std::string, std::vector<int> > check_word(int index)
+	std::pair<std::vector<std::string>, std::vector<int> > check_word(int index)
 	{
-		std::queue<std::pair<int,int> > q;
-		std::string output;
-		std::vector<int> history;
+		std::stack<std::pair<int,int> > stack;
 		
-		auto word = split(words[index]);
+		auto word = split(words[index]); // impart cuv/prop de input in litere/cuvinte
 
-		q.push({ start_node, 0 });
-		while (!q.empty())
+		std::vector<std::string> output(word.size()+1,""); //vector de string de lungime 1+word.size()
+		std::vector<int> history(word.size()+1, -1); // vector de lungime 1+word.size()
+
+		stack.push({ start_node, 0 });
+
+		while (!stack.empty()) // dfs
 		{
-			int x = q.front().first;
-			int word_idx = q.front().second;
-			q.pop();
+			int x = stack.top().first;
+			int word_idx = stack.top().second;
+			stack.pop();
 
-			history.push_back(x);
-			output += node_vals[x];
+			history[word_idx] = x;
+			output[word_idx] = node_vals[x];
 
 			if (word_idx == word.size()) // daca s-a terminat cuvantul
 			{
@@ -59,22 +64,23 @@ private:
 					{
 						return { output, history };
 					}
+				// daca nu e stare finala trecem la urmatorul nod din coada
 				continue;
 			}
 
 			for (auto& neighbor : ad_list[x])
 			{
 				std::string s;
-				s += word[word_idx];
-	
-				if (neighbor.second == s)
+				s += word[word_idx]; // iau litera/cuvantul de pe poz word_idx
+
+				if (neighbor.second == s) // daca e muchie la alt nod cu litera/cuv
 				{
-					q.push({ neighbor.first,word_idx + 1 });
+					stack.push({ neighbor.first,word_idx + 1 });
 				}
 			}
 		}
 		// daca nu s-a gasit un drum
-		return { "", std::vector<int>() };
+		return { std::vector<std::string>(), std::vector<int>() };
 	}
 public:
 	Moore() : nodes(0), edges(0), start_node(-1) {}
@@ -124,9 +130,13 @@ public:
 		for (int i=0;i<words.size();++i)
 		{
 			auto x = check_word(i);
-			if (x.first != "")
+			if (!x.first.empty())
 			{
-				std::cout << "DA\n" << x.first << "\nTraseu: ";
+				std::cout << "Da\n";
+				for (const std::string& s : x.first)
+					std::cout << s;
+
+				std::cout << "\nTraseu: ";
 				for (int y : x.second)
 					std::cout << y << " ";
 				std::cout << '\n';
@@ -135,6 +145,7 @@ public:
 			{	
 				std::cout << "NU\n";
 			}
+			std::cout << '\n';
 		}
 	}
 
@@ -173,7 +184,7 @@ int main()
 	std::ifstream fin("input.txt");
 
 	Moore m(fin);
-	//std::cout << m;
+	//std::cout << m << '\n';
 	m.check_words();
 
 	fin.close();
