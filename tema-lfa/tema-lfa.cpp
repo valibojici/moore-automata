@@ -70,10 +70,7 @@ private:
 
 			for (auto& neighbor : ad_list[x])
 			{
-				std::string s;
-				s += word[word_idx]; // iau litera/cuvantul de pe poz word_idx
-
-				if (neighbor.second == s) // daca e muchie la alt nod cu litera/cuv
+				if (neighbor.second == word[word_idx]) // daca e muchie la alt nod cu litera/cuv
 				{
 					stack.push({ neighbor.first,word_idx + 1 });
 				}
